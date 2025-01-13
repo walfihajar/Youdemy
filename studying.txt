@@ -1,0 +1,1 @@
+when you define variables inside the constructor, they are local to the constructor and cannot be accessed by other methods in the class, they exist only during the execution of the constructor
