@@ -26,9 +26,9 @@
                 <div class="mb-4 flex gap-4">
                     <!-- Full Name -->
                     <div class="w-1/2">
-                        <label for="name" class="text-gray-700 text-sm block mb-2">Full Name</label>
+                        <label for="first_name" class="text-gray-700 text-sm block mb-2">Full Name</label>
                         <div class="relative">
-                            <input id="name" name="name" type="text" required 
+                            <input id="first_name" name="first_name" type="text" required 
                                    class="w-full bg-gray-50 border border-gray-300 rounded-md pl-10 pr-4 py-2 text-sm focus:border-blue-500 focus:ring focus:ring-blue-200 outline-none" 
                                    placeholder="First Name">
                             <!-- User Icon -->
@@ -41,9 +41,9 @@
                     </div>
                     <!-- Last Name -->
                     <div class="w-1/2">
-                        <label for="last-name" class="text-gray-700 text-sm block mb-2">Last Name</label>
+                        <label for="last_name" class="text-gray-700 text-sm block mb-2">Last Name</label>
                         <div class="relative">
-                            <input id="last-name" name="last-name" type="text" required 
+                            <input id="last_name" name="last_name" type="text" required 
                                    class="w-full bg-gray-50 border border-gray-300 rounded-md pl-10 pr-4 py-2 text-sm focus:border-blue-500 focus:ring focus:ring-blue-200 outline-none" 
                                    placeholder="Last Name">
                             <!-- User Icon -->
@@ -111,22 +111,6 @@
                         <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                             <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                            </svg>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Upload Image -->
-                <div class="mb-4">
-                    <label for="image-upload" class="text-gray-700 text-sm block mb-2">Profile Picture</label>
-                    <div class="relative">
-                        <input id="image-upload" name="image-upload" type="file" 
-                            class="w-full bg-gray-50 border border-gray-300 rounded-md text-sm text-gray-700 py-2 pl-10 pr-4 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200"
-                            title="">
-                        <!-- Upload Icon -->
-                        <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
                             </svg>
                         </div>
                     </div>

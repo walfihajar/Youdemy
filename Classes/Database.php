@@ -28,3 +28,5 @@ class Database {
         return $this->pdo;
     }
 }
+
+define('PROJECT_PATH', 'http://localhost/Brief-12-Youdemy/');

@@ -1,0 +1,18 @@
+.text-custom-primary {
+    color: #6864f7;
+}
+.bg-custom-primary {
+    background-color: #6864f7;
+}
+.bg-custom-primary-dark {
+    background-color: #504cf7; /* A darker shade for hover states */
+}
+.hover\:text-custom-primary:hover {
+    color: #6864f7;
+}
+.hover\:bg-custom-primary-dark:hover {
+    background-color: #504cf7; /* Hover background color */
+}
+.hover\:stroke-custom-primary:hover {
+    stroke: #6864f7; /* Hover stroke color */
+}
