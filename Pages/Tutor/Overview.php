@@ -17,22 +17,26 @@ $stmtCourses->bindParam(':id_teacher', $id_teacher, PDO::PARAM_INT);
 $stmtCourses->execute();
 $course_number= $stmtCourses->fetch(PDO::FETCH_ASSOC)['course_number'];
 
-//the number of students enrolled in the teacher's courses
-// $stmtStudents = $db->prepare("SELECT COUNT(*) as learners_number FROM enrollement WHERE id_course IN (SELECT id_course FROM courses WHERE id_user = :id_teacher)");
-// $stmtStudents->bindParam(':id_user', $id_teacher, PDO::PARAM_INT);
-// $stmtStudents->execute();
-// $studentCount = $stmtStudents->fetch(PDO::FETCH_ASSOC)['learners_number'];
+// Calculate the number of students enrolled in the teacher's courses
+$stmtStudents = $db->prepare("
+    SELECT 
+        COUNT(DISTINCT e.id_user) as learners_number 
+    FROM 
+        enrollement e 
+    INNER JOIN 
+        course c ON e.id_course = c.id_course 
+    WHERE 
+        c.id_user = :id_teacher
+        
+");
+$stmtStudents->bindParam(':id_teacher', $id_teacher, PDO::PARAM_INT);
+$stmtStudents->execute();
+$studentCount = $stmtStudents->fetch(PDO::FETCH_ASSOC)['learners_number'];
 
 // Calculate the best-selling course (course with the most enrollments)
-$stmtBestSeller = $db->prepare("
-    SELECT c.title, COUNT(e.id_user) as enrollment_count 
-    FROM course c 
-    LEFT JOIN enrollement e ON c.id_course = e.id_course
-    WHERE c.id_user = :id_teacher
-    GROUP BY c.id_course
-    ORDER BY enrollment_count ASC
-    LIMIT 1
-");
+$stmtBestSeller = $db->prepare("SELECT c.title, COUNT(e.id_user) as enrollment_count FROM course c LEFT JOIN enrollement e ON c.id_course = e.id_course 
+                                WHERE c.id_user = :id_teacher GROUP BY c.id_course ORDER BY enrollment_count DESC LIMIT 1");
+                    
 $stmtBestSeller->bindParam(':id_teacher', $id_teacher, PDO::PARAM_INT);
 $stmtBestSeller->execute();
 $bestSellerCourse = $stmtBestSeller->fetch(PDO::FETCH_ASSOC);

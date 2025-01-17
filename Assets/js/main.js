@@ -5,4 +5,3 @@
  btn.addEventListener("click", () => {
      menu.classList.toggle("hidden");
  });
-

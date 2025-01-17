@@ -18,6 +18,8 @@ if (!isset($_SESSION['user']) || $_SESSION['user']['id_role'] != 2) {
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
     body {
       font-family: 'Inter', sans-serif;
@@ -61,11 +63,6 @@ if (!isset($_SESSION['user']) || $_SESSION['user']['id_role'] != 2) {
         <li class="mb-4 flex items-center text-gray-700 hover:text-yellow-500 transition-colors">
           <a href="<?php echo PROJECT_PATH; ?>Pages/Tutor/Courses.php">
             <i class="fas fa-book mr-2"></i><span>Courses</span>
-          </a>
-        </li>
-        <li class="mb-4 flex items-center text-gray-700 hover:text-yellow-500 transition-colors">
-          <a href="<?php echo PROJECT_PATH; ?>Pages/Tutor/Subscriptions.php">
-            <i class="fas fa-list-alt mr-2"></i><span>Subscriptions</span>
           </a>
         </li>
         <li class="mb-4 flex items-center text-red-500 hover:text-red-700 transition-colors">
