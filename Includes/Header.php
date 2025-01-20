@@ -1,5 +1,6 @@
 <?php 
 require_once '../../Classes/Database.php';
+ob_start();
 ?>
 
 <!DOCTYPE html>
@@ -41,7 +42,7 @@ require_once '../../Classes/Database.php';
                             } else if ($user['id_role'] == 2) {
                                 echo '<a href="' . PROJECT_PATH . 'Pages/Tutor/Overview.php" class="bg-purple-700 text-white rounded-full py-1 px-3 hover:bg-purple-700-dark transition duration-300">Profile</a>';
                             } else if ($user['id_role'] == 3) {
-                                echo '<a href="' . PROJECT_PATH . 'Pages/Learner/Courses.php" class="bg-purple-700 text-white rounded-full py-1 px-3 hover:bg-purple-700-dark transition duration-300">Profile</a>';
+                                echo '<a href="' . PROJECT_PATH . 'Pages/Learner/Dashboard.php" class="bg-purple-700 text-white rounded-full py-1 px-3 hover:bg-purple-700-dark transition duration-300">Profile</a>';
                             }
 
                             echo '<a href="' . PROJECT_PATH . 'Pages/Auth/Log_out.php" class="bg-purple-700 text-white rounded-full py-1 px-3 hover:bg-purple-700-dark transition duration-300">Logout</a>';
@@ -84,7 +85,7 @@ require_once '../../Classes/Database.php';
                         } else if ($_SESSION['id_role'] == 2) {
                             echo '<li><a href="' . PROJECT_PATH . 'Pages/Tutor/Overview.php" class="block text-sm px-2 py-2 text-gray-700 ">Profile</a></li>';
                         } else if ($_SESSION['id_role'] == 3) {
-                            echo '<li><a href="' . PROJECT_PATH . 'Pages/Learner/Courses.php" class="block text-sm px-2 py-2 text-gray-700 ">Profile</a></li>';
+                            echo '<li><a href="' . PROJECT_PATH . 'Pages/Learner/Dashboard.php" class="block text-sm px-2 py-2 text-gray-700 ">Profile</a></li>';
                         }
                         echo '<li><a href="' . PROJECT_PATH . 'Pages/Auth/Log_out.php" class="block text-sm px-2 py-2 text-gray-700 ">Logout</a></li>';
                     } else {

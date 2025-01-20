@@ -2,7 +2,9 @@
 // Include necessary files
 require_once '../../Classes/Database.php';
 require_once '../../Classes/Course.php';
+require_once '../../Classes/Enrollement.php'; // Include the Enrollment class
 require_once '../../Includes/Header.php';
+ob_start();
 
 // Get database connection
 $db = Database::getInstance()->getConnection();
@@ -28,8 +30,27 @@ $isLoggedIn = isset($_SESSION['user']);
 $userId = $isLoggedIn ? $_SESSION['user']['id_user'] : null;
 $userRole = $isLoggedIn ? $_SESSION['user']['id_role'] : null;
 
+// Instantiate the Enrollment class with course ID and user ID
+$enrollment = new Enrollment($db, $courseId, $userId);
+
 // Check if the user is already enrolled in the course
-$isEnrolled = $isLoggedIn ? Course::isUserEnrolled($db, $userId, $courseId) : false;
+$isEnrolled = $isLoggedIn ? $enrollment->isUserEnrolled() : false;
+
+// Handle form submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $isLoggedIn && $userRole === 3) {
+    $success = $enrollment->enrollUser();
+
+    if ($success) {
+        // Set a success message in the session
+        $_SESSION['success_message'] = 'You have successfully enrolled in the course. Study well!';
+        // Refresh the page to update the enrollment status
+        header('Location: ' . $_SERVER['PHP_SELF'] . '?id=' . $courseId);
+        exit();
+    } else {
+        // Set an error message in the session
+        $_SESSION['error_message'] = 'You are already enrolled in this course.';
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -70,46 +91,50 @@ $isEnrolled = $isLoggedIn ? Course::isUserEnrolled($db, $userId, $courseId) : fa
             </div>
 
             <!-- Enroll Now Button -->
-            <?php if ($isLoggedIn && $userRole === 3): ?>
-                <div class="mt-6">
-                    <button onclick="handleEnroll(<?= $courseId ?>)" class="w-full bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors text-sm md:text-base">
-                        <?= $isEnrolled ? 'Go to Dashboard' : 'Enroll Now' ?>
-                    </button>
-                </div>
+            <?php if ($isLoggedIn && $userRole === 3 && !$isEnrolled): ?>
+                <form method="POST" action="">
+                    <div class="mt-6">
+                        <button type="submit" class="w-full bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors text-sm md:text-base">
+                            Enroll Now
+                        </button>
+                    </div>
+                </form>
             <?php endif; ?>
         </div>
     </div>
 
+    <!-- SweetAlert2 Script -->
     <script>
-        function handleEnroll(courseId) {
-            const isEnrolled = <?= $isEnrolled ? 'true' : 'false'; ?>;
+        // Check if there's a success or error message in the session
+        <?php if (isset($_SESSION['success_message'])): ?>
+            Swal.fire({
+                title: 'Enrolled Successfully!',
+                text: '<?= $_SESSION['success_message'] ?>',
+                icon: 'success',
+                confirmButtonText: 'Go to Dashboard',
+                showCancelButton: true,
+                cancelButtonText: 'Close'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = './Dashboard.php';
+                }
+            });
+            <?php unset($_SESSION['success_message']); // Clear the message ?>
+        <?php endif; ?>
 
-            if (isEnrolled) {
-                Swal.fire({
-                    title: 'Already Enrolled!',
-                    text: 'You are already enrolled in this course. Check your dashboard to access it.',
-                    icon: 'info',
-                    confirmButtonText: 'Go to Dashboard'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = '../Learner/Dashboard.php';
-                    }
-                });
-            } else {
-                Swal.fire({
-                    title: 'Enrolled Successfully!',
-                    text: 'You have successfully enrolled in the course. Study well!',
-                    icon: 'success',
-                    confirmButtonText: 'Go to Dashboard',
-                    showCancelButton: true,
-                    cancelButtonText: 'Close'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = '../Learner/Dashboard.php';
-                    }
-                });
-            }
-        }
+        <?php if (isset($_SESSION['error_message'])): ?>
+            Swal.fire({
+                title: 'Already Enrolled!',
+                text: '<?= $_SESSION['error_message'] ?>',
+                icon: 'info',
+                confirmButtonText: 'Go to Dashboard'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = './Dashboard.php';
+                }
+            });
+            <?php unset($_SESSION['error_message']); // Clear the message ?>
+        <?php endif; ?>
     </script>
 </body>
 </html>

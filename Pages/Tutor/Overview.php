@@ -91,41 +91,7 @@ ob_start();
         </div>
     </section>
 
-    <!-- Popular Categories -->
-    <section class="mb-6">
-        <h2 class="text-xl font-bold mb-4">Popular Categories</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Category Cards -->
-            <div class="bg-green-100 p-4 rounded-lg shadow-lg flex items-center card-hover transition-transform">
-                <i class="fas fa-paint-brush text-green-700 text-2xl mr-4"></i>
-                <div>
-                    <h3 class="text-lg font-bold text-green-700">UI/UX Design</h3>
-                    <p class="text-sm text-gray-600">15 Course</p>
-                </div>
-            </div>
-            <div class="bg-pink-100 p-4 rounded-lg shadow-lg flex items-center card-hover transition-transform">
-                <i class="fas fa-chart-line text-pink-700 text-2xl mr-4"></i>
-                <div>
-                    <h3 class="text-lg font-bold text-pink-700">Marketing</h3>
-                    <p class="text-sm text-gray-600">34 Course</p>
-                </div>
-            </div>
-            <div class="bg-blue-100 p-4 rounded-lg shadow-lg flex items-center card-hover transition-transform">
-                <i class="fas fa-code text-blue-700 text-2xl mr-4"></i>
-                <div>
-                    <h3 class="text-lg font-bold text-blue-700">Development</h3>
-                    <p class="text-sm text-gray-600">12 Course</p>
-                </div>
-            </div>
-            <div class="bg-yellow-100 p-4 rounded-lg shadow-lg flex items-center card-hover transition-transform">
-                <i class="fas fa-briefcase text-yellow-700 text-2xl mr-4"></i>
-                <div>
-                    <h3 class="text-lg font-bold text-yellow-700">Business</h3>
-                    <p class="text-sm text-gray-600">21 Course</p>
-                </div>
-            </div>
-        </div>
-    </section>
+    
 <?php
 $content = ob_get_clean();
 require_once '../../Includes/Layout_Tutor.php';

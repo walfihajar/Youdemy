@@ -335,5 +335,37 @@ class Course
         $stmt->execute([$userId, $courseId]);
         return $stmt->fetch(PDO::FETCH_ASSOC) !== false;
     }
+    public static function getEnrolledCourses($db, $userId) {
+        $query = "
+            SELECT 
+                c.id_course, 
+                c.title, 
+                c.description, 
+                c.picture, 
+                c.created_at AS course_created_at, 
+                u.first_name AS tutor_first_name, 
+                u.last_name AS tutor_last_name, 
+                e.enrolled_in 
+            FROM 
+                enrollement e 
+            JOIN 
+                course c ON e.id_course = c.id_course 
+            JOIN 
+                user u ON c.id_user = u.id_user
+            WHERE 
+                e.id_user = ?
+        ";
+        $stmt = $db->prepare($query);
+        $stmt->execute([$userId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public static function countEnrolledCourses($db, $userId) {
+        $query = "SELECT COUNT(*) AS total_courses FROM enrollement WHERE id_user = ?";
+        $stmt = $db->prepare($query);
+        $stmt->execute([$userId]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result['total_courses'];
+    }
 }
 ?>
