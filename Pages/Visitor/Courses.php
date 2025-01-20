@@ -87,12 +87,12 @@ $userRole = $isLoggedIn ? $_SESSION['user']['id_role'] : null;
                             </div>
                         </div>
 
-                        <!-- Enroll Now Button -->
-                        <div class="mt-4">
-                            <button onclick="handleEnroll(<?= $course['id_course'] ?>)" class="w-full bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors text-sm md:text-base">
-                                Enroll Now
-                            </button>
-                        </div>
+                        <!-- View Details Button -->
+<div class="mt-4">
+    <button onclick="handleViewDetails(<?= $course['id_course'] ?>)" class="w-full bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors text-sm md:text-base">
+        View Details
+    </button>
+</div>
                     </div>
                 <?php endforeach; ?>
             <?php else: ?>
@@ -105,54 +105,45 @@ $userRole = $isLoggedIn ? $_SESSION['user']['id_role'] : null;
     <div class="flex justify-center mt-6 md:mt-8 mb-8 md:mb-12">
         <?php if ($totalPages > 1): ?>
             <div class="flex space-x-2">
-                <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                    <a href="?page=<?= $i ?>" class="pagination-button px-3 py-1 md:px-4 md:py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm md:text-base">
-                        <?= $i ?>
-                    </a>
-                <?php endfor; ?>
+                <!-- Previous Button -->
+                <?php if ($page > 1): ?>
+                    <a href="?page=<?= $page - 1 ?>" class="pagination-button px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm md:text-base">Previous</a>
+                <?php else: ?>
+                    <span class="px-4 py-2 bg-purple-300 text-white rounded-lg text-sm md:text-base cursor-not-allowed">Previous</span>
+                <?php endif; ?>
+
+                <!-- Next Button -->
+                <?php if ($page < $totalPages): ?>
+                    <a href="?page=<?= $page + 1 ?>" class="pagination-button px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm md:text-base">Next</a>
+                <?php else: ?>
+                    <span class="px-4 py-2 bg-purple-300 text-white rounded-lg text-sm md:text-base cursor-not-allowed">Next</span>
+                <?php endif; ?>
             </div>
         <?php endif; ?>
     </div>
 
     <script>
-    // Function to handle the "Enroll Now" button click
-    function handleEnroll(courseId) {
-        // Check if the user is logged in and has the correct role (id_role = 3)
+    function handleViewDetails(courseId) {
         const isLoggedIn = <?= $isLoggedIn ? 'true' : 'false'; ?>;
-        const userRole = <?= $userRole !== null ? $userRole : 'null'; ?>;
 
-        if (!isLoggedIn || userRole !== 3) {
+        if (!isLoggedIn) {
             Swal.fire({
                 title: 'You need an account!',
-                text: 'Please register or log in to enroll in this course.',
+                text: 'Please register or log in to view course details.',
                 icon: 'info',
                 showCancelButton: true,
                 confirmButtonText: 'Register',
                 cancelButtonText: 'Log In'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Redirect to the registration page
-                    window.location.href = '../Auth/Register.php'; // Replace with your registration page URL
+                    window.location.href = '../Auth/Register.php';
                 } else if (result.isDismissed) {
-                    // Redirect to the login page
-                    window.location.href = '../Auth/Log_in.php'; // Replace with your login page URL
+                    window.location.href = '../Auth/Log_in.php';
                 }
             });
         } else {
-            // Simulate a successful enrollment (replace this with an actual API call)
-            Swal.fire({
-                title: 'Enrolled Successfully!',
-                text: 'You have successfully enrolled in the course. Check your course dashboard to see your enrolled courses.',
-                icon: 'success',
-                confirmButtonText: 'Go to Dashboard',
-                showCancelButton: true,
-                cancelButtonText: 'Close'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Redirect to the course dashboard
-                    window.location.href = '/dashboard'; // Replace with your dashboard URL
-                }
-            });
+            // Redirect to the course details page
+            window.location.href = `../Learner/CourseDetails.php?id=${courseId}`;
         }
     }
 </script>

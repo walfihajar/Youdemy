@@ -318,5 +318,22 @@ class Course
             return 0; // Return 0 if there's an error
         }
     }
+
+    public static function getCourseDetails($db, $courseId) {
+        $query = "SELECT c.*, u.first_name, u.last_name 
+                  FROM course c 
+                  JOIN user u ON c.id_user = u.id_user 
+                  WHERE c.id_course = ?";
+        $stmt = $db->prepare($query);
+        $stmt->execute([$courseId]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    
+    public static function isUserEnrolled($db, $userId, $courseId) {
+        $query = "SELECT * FROM enrollement WHERE id_user = ? AND id_course = ?";
+        $stmt = $db->prepare($query);
+        $stmt->execute([$userId, $courseId]);
+        return $stmt->fetch(PDO::FETCH_ASSOC) !== false;
+    }
 }
 ?>
