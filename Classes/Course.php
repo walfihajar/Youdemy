@@ -1,7 +1,7 @@
 <?php
 require_once 'Database.php'; // Include the Database class
 
-class Course
+abstract class Course
 {
     private ?int $id_course; // Nullable because it may not be set before insertion
     private string $title;
@@ -76,27 +76,8 @@ class Course
     }
 
     // Method to create a new course
-    public function create(int $id_teacher, int $id_category): bool
-    {
-        $stmt = $this->db->prepare("
-            INSERT INTO course (title, description, picture, price, id_user, id_category) 
-            VALUES (:title, :description, :picture, :price, :id_user, :id_category)
-        ");
-        $stmt->bindParam(':title', $this->title, PDO::PARAM_STR);
-        $stmt->bindParam(':description', $this->description, PDO::PARAM_STR);
-        $stmt->bindParam(':picture', $this->picture, PDO::PARAM_STR);
-        $stmt->bindParam(':price', $this->price, PDO::PARAM_STR);
-        $stmt->bindParam(':id_user', $id_teacher, PDO::PARAM_INT);
-        $stmt->bindParam(':id_category', $id_category, PDO::PARAM_INT);
-        $success = $stmt->execute();
-
-        // Set the ID if the insertion was successful
-        if ($success) {
-            $this->id_course = $this->db->lastInsertId();
-        }
-
-        return $success;
-    }
+    abstract public function createCourseContent();
+    abstract public function showCourseContent();
 
     // Method to delete a course
     public function delete(): bool
@@ -256,51 +237,51 @@ class Course
 
 
     public static function showInCatalogue(PDO $db, int $page = 1, int $perPage = 10): array
-{
-    try {
-        // Calculate the offset
-        $offset = ($page - 1) * $perPage;
+    {
+        try {
+            // Calculate the offset
+            $offset = ($page - 1) * $perPage;
 
-        // Prepare the SQL query with LIMIT and OFFSET
-        $stmt = $db->prepare("
-            SELECT 
-                c.id_course, 
-                c.title, 
-                c.price, 
-                c.created_at, 
-                c.status, 
-                c.archive, 
-                c.picture, 
-                cat.name AS category, 
-                u.first_name, 
-                u.last_name, 
-                COUNT(e.id_user) AS enrollment_count
-            FROM 
-                course AS c
-            INNER JOIN 
-                user AS u ON c.id_user = u.id_user
-            LEFT JOIN 
-                category AS cat ON c.id_category = cat.id_category
-            LEFT JOIN 
-                enrollement AS e ON c.id_course = e.id_course
-            WHERE 
-                c.status = 'activated' AND c.archive = '0'
-            GROUP BY 
-                c.id_course
-            LIMIT :limit OFFSET :offset
-        ");
+            // Prepare the SQL query with LIMIT and OFFSET
+            $stmt = $db->prepare("
+                SELECT 
+                    c.id_course, 
+                    c.title, 
+                    c.price, 
+                    c.created_at, 
+                    c.status, 
+                    c.archive, 
+                    c.picture, 
+                    cat.name AS category, 
+                    u.first_name, 
+                    u.last_name, 
+                    COUNT(e.id_user) AS enrollment_count
+                FROM 
+                    course AS c
+                INNER JOIN 
+                    user AS u ON c.id_user = u.id_user
+                LEFT JOIN 
+                    category AS cat ON c.id_category = cat.id_category
+                LEFT JOIN 
+                    enrollement AS e ON c.id_course = e.id_course
+                WHERE 
+                    c.status = 'activated' AND c.archive = '0'
+                GROUP BY 
+                    c.id_course
+                LIMIT :limit OFFSET :offset
+            ");
 
-        // Bind the pagination parameters
-        $stmt->bindValue(':limit', $perPage, PDO::PARAM_INT);
-        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+            // Bind the pagination parameters
+            $stmt->bindValue(':limit', $perPage, PDO::PARAM_INT);
+            $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
 
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC); // Return the fetched data
-    } catch (PDOException $e) {
-        error_log("Database error in showInCatalogue: " . $e->getMessage());
-        return []; // Return an empty array if there's an error
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC); // Return the fetched data
+        } catch (PDOException $e) {
+            error_log("Database error in showInCatalogue: " . $e->getMessage());
+            return []; // Return an empty array if there's an error
+        }
     }
-}
 
     public static function countCourses(PDO $db): int
     {
