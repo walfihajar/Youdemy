@@ -1,37 +1,36 @@
 <?php
-session_start(); // Start the session
+session_start(); // Ensure this is at the very top
+require_once '../../Classes/User.php';
+require_once '../../Classes/Database.php';
 
-require_once '../../Classes/User.php'; // Include the User class
-require_once '../../Classes/Database.php'; // Include the Database class (assuming it exists)
+$error = '';
 
-$error = ''; // Variable to store error messages
-
-// Check if the form is submitted
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = trim($_POST['email']); // Get and sanitize the email
-    $password = trim($_POST['password']); // Get and sanitize the password
+    $email = trim($_POST['email']);
+    $password = trim($_POST['password']);
 
     try {
-        // Attempt to sign in the user
         $user = User::signin($email, $password);
 
-        // Redirect based on the user's role
-        switch ($user->getIdRole()) { // Use the getter method
+        // Set session variables
+        $_SESSION['email'] = $user->getEmail();
+        $_SESSION['id_role'] = $user->getIdRole();
+
+        switch ($user->getIdRole()) {
             case 1: // Admin
-                header('Location:../Admin/Overview.php');
+                header('Location: ../Admin/Overview.php');
                 exit();
             case 2: // Teacher
-                header('Location:../Tutor/Overview.php');
+                header('Location: ../Tutor/Overview.php');
                 exit();
             case 3: // Student
-                header('Location:../Learner/Overview.php');
+                header('Location: ../Visitor/Courses.php');
                 exit();
             default:
                 throw new Exception("Invalid user role.");
         }
     } catch (Exception $e) {
-        // Handle login errors
-        $error = $e->getMessage(); // Store the error message
+        $error = $e->getMessage();
     }
 }
 ?>

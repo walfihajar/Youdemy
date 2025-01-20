@@ -2,34 +2,39 @@
 ob_start();
 session_start();
 require_once '../../Classes/Database.php';
-require_once '../../Classes/Course.php';
 require_once '../../Classes/Tutor.php';
 
+// Redirect if user is not logged in or is not an admin
 if (!isset($_SESSION['user']) || $_SESSION['user']['id_role'] != 1) {
     header('Location: ' . PROJECT_PATH . 'Pages/Auth/Log_in.php');
     exit();
 }
 
+// Get database connection
+$db = Database::getInstance()->getConnection();
+
+// Handle Activate Tutor
 if (isset($_POST['activate_user']) && isset($_POST['id_user'])) {
-    $tutor = new Tutor();
-    $id_user = $_POST['id_user'];
-    if ($tutor->activateTutor($id_user)) {
+    $id_user = (int)$_POST['id_user'];
+    $tutor = new Tutor($db, $id_user); // Pass the database connection and user ID
+    if ($tutor->activate()) {
         header('Location: ' . $_SERVER['PHP_SELF']);
         exit();
     }
 }
 
+// Handle Delete Tutor
 if (isset($_POST['delete_user']) && isset($_POST['id_user'])) {
-    $tutor = new Tutor();
-    $id_user = $_POST['id_user'];
-    if ($tutor->deleteTutor($id_user)) {
+    $id_user = (int)$_POST['id_user'];
+    $tutor = new Tutor($db, $id_user); // Pass the database connection and user ID
+    if ($tutor->delete()) {
         header('Location: ' . $_SERVER['PHP_SELF']);
         exit();
     }
 }
 
-$tutor = new Tutor();
-$users = $tutor->approveTutor(); 
+// Fetch tutors awaiting approval
+$users = Tutor::approveTutors($db); // Fetch tutors awaiting approval
 ?>
 
 <div class="p-4">
@@ -48,18 +53,18 @@ $users = $tutor->approveTutor();
             <?php if (!empty($users)): ?>
                 <?php foreach ($users as $user): ?>
                     <tr class="hover:bg-gray-100 transition duration-200">
-                        <td class="py-4 px-6"><?= htmlspecialchars($user['first_name']) ?></td>
-                        <td class="py-4 px-6"><?= htmlspecialchars($user['last_name']) ?></td>
-                        <td class="py-4 px-6"><?= htmlspecialchars($user['email']) ?></td>
+                        <td class="py-4 px-6"><?= htmlspecialchars($user->getFirstName()) ?></td>
+                        <td class="py-4 px-6"><?= htmlspecialchars($user->getLastName()) ?></td>
+                        <td class="py-4 px-6"><?= htmlspecialchars($user->getEmail()) ?></td>
                         <td class="py-4 px-6 text-center">
-                            <span class="px-3 py-1 rounded-full text-sm font-semibold <?= $user['status'] === 'activated' ? 'bg-green-100 text-green-700' : ($user['status'] === 'awaiting' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700') ?>">
-                                <?= htmlspecialchars($user['status']) ?>
+                            <span class="px-3 py-1 rounded-full text-sm font-semibold <?= $user->getStatus() === 'activated' ? 'bg-green-100 text-green-700' : ($user->getStatus() === 'awaiting' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700') ?>">
+                                <?= htmlspecialchars($user->getStatus()) ?>
                             </span>
                         </td>
                         <td class="py-4 px-6 flex justify-center space-x-4">
                             <!-- Activate Button -->
                             <form action="" method="POST">
-                                <input type="hidden" name="id_user" value="<?= $user['id_user'] ?>">
+                                <input type="hidden" name="id_user" value="<?= $user->getIdUser() ?>">
                                 <button type="submit" name="activate_user" class="text-green-500 hover:text-green-700 transition-colors duration-300" title="Activate">
                                     <i class="fas fa-check-circle text-xl"></i>
                                 </button>
@@ -67,7 +72,7 @@ $users = $tutor->approveTutor();
 
                             <!-- Delete Button -->
                             <form action="" method="POST">
-                                <input type="hidden" name="id_user" value="<?= $user['id_user'] ?>">
+                                <input type="hidden" name="id_user" value="<?= $user->getIdUser() ?>">
                                 <button type="submit" name="delete_user" class="text-red-500 hover:text-red-700 transition-colors duration-300" title="Delete">
                                     <i class="fas fa-trash-alt text-xl"></i>
                                 </button>
@@ -75,6 +80,10 @@ $users = $tutor->approveTutor();
                         </td>
                     </tr>
                 <?php endforeach; ?>
+            <?php else: ?>
+                <tr>
+                    <td colspan="5" class="py-4 px-6 text-center">No tutors awaiting approval.</td>
+                </tr>
             <?php endif; ?>
         </tbody>
     </table>
@@ -84,7 +93,6 @@ $users = $tutor->approveTutor();
     $(document).ready(function () {
         $('#datatable').DataTable({
             responsive: true,
-            error: false,
         });
     });
 </script>
