@@ -7,15 +7,18 @@ require_once '../../Includes/Header.php';
 // Get database connection
 $db = Database::getInstance()->getConnection();
 
+// Fetch the search term from the query string
+$search = isset($_GET['search']) ? trim($_GET['search']) : '';
+
 // Pagination settings
 $perPage = 6; // Number of courses per page
 $page = isset($_GET['page']) ? (int) $_GET['page'] : 1; // Current page (default is 1)
 
-// Fetch courses for the current page
-$courses = Course::showInCatalogue($db, $page, $perPage);
+// Fetch courses for the current page with search term
+$courses = Course::showInCatalogue($db, $page, $perPage, $search);
 
-// Fetch total number of courses
-$totalCourses = Course::countCourses($db);
+// Fetch total number of courses with search term
+$totalCourses = Course::countCourses($db, $search);
 $totalPages = ceil($totalCourses / $perPage); // Total number of pages
 
 // Check if the user is logged in and get their role
@@ -63,6 +66,16 @@ $userRole = $isLoggedIn ? $_SESSION['user']['id_role'] : null;
         </div>
     </header>
 
+    <!-- Search Form -->
+    <div class="container mx-auto p-4 md:p-8">
+        <form action="" method="GET" class="mb-6">
+            <div class="flex items-center">
+                <input type="text" name="search" placeholder="Search courses..." value="<?= htmlspecialchars($search) ?>" class="w-full px-4 py-2 rounded-l-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-600">
+                <button type="submit" class="bg-purple-600 text-white px-6 py-2 rounded-r-lg hover:bg-purple-700 transition-colors">Search</button>
+            </div>
+        </form>
+    </div>
+
     <!-- Course Grid -->
     <div class="container mx-auto p-4 md:p-8">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
@@ -88,15 +101,17 @@ $userRole = $isLoggedIn ? $_SESSION['user']['id_role'] : null;
                         </div>
 
                         <!-- View Details Button -->
-<div class="mt-4">
-    <button onclick="handleViewDetails(<?= $course['id_course'] ?>)" class="w-full bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors text-sm md:text-base">
-        View Details
-    </button>
-</div>
+                        <div class="mt-4">
+                            <button onclick="handleViewDetails(<?= $course['id_course'] ?>)" class="w-full bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors text-sm md:text-base">
+                                View Details
+                            </button>
+                        </div>
                     </div>
                 <?php endforeach; ?>
             <?php else: ?>
-                <p class="text-center text-gray-600 col-span-full">No courses available.</p>
+                <p class="text-center text-gray-600 col-span-full">
+                    <?= empty($search) ? 'No courses available.' : 'No courses found for "' . htmlspecialchars($search) . '".'; ?>
+                </p>
             <?php endif; ?>
         </div>
     </div>
@@ -107,14 +122,14 @@ $userRole = $isLoggedIn ? $_SESSION['user']['id_role'] : null;
             <div class="flex space-x-2">
                 <!-- Previous Button -->
                 <?php if ($page > 1): ?>
-                    <a href="?page=<?= $page - 1 ?>" class="pagination-button px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm md:text-base">Previous</a>
+                    <a href="?page=<?= $page - 1 ?>&search=<?= urlencode($search) ?>" class="pagination-button px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm md:text-base">Previous</a>
                 <?php else: ?>
                     <span class="px-4 py-2 bg-purple-300 text-white rounded-lg text-sm md:text-base cursor-not-allowed">Previous</span>
                 <?php endif; ?>
 
                 <!-- Next Button -->
                 <?php if ($page < $totalPages): ?>
-                    <a href="?page=<?= $page + 1 ?>" class="pagination-button px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm md:text-base">Next</a>
+                    <a href="?page=<?= $page + 1 ?>&search=<?= urlencode($search) ?>" class="pagination-button px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm md:text-base">Next</a>
                 <?php else: ?>
                     <span class="px-4 py-2 bg-purple-300 text-white rounded-lg text-sm md:text-base cursor-not-allowed">Next</span>
                 <?php endif; ?>
@@ -146,6 +161,6 @@ $userRole = $isLoggedIn ? $_SESSION['user']['id_role'] : null;
             window.location.href = `../Learner/CourseDetails.php?id=${courseId}`;
         }
     }
-</script>
+    </script>
 </body>
 </html>

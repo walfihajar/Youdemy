@@ -1,5 +1,5 @@
 <?php
-session_start(); // Ensure this is at the very top
+session_start();
 require_once '../../Classes/User.php';
 require_once '../../Classes/Database.php';
 
@@ -10,35 +10,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = trim($_POST['password']);
 
     try {
-        $user = User::signin($email, $password);
+        User::signin($email, $password);
+        exit();
 
-        // Set session variables
-        $_SESSION['email'] = $user->getEmail();
-        $_SESSION['id_role'] = $user->getIdRole();
-        $_SESSION['status'] = $user->getStatus(); // Add status to session
-
-        switch ($user->getIdRole()) {
-            case 1: // Admin
-                header('Location: ../Admin/Overview.php');
-                exit();
-            case 2: // Teacher
-                if ($user->getStatus() == STATUS::awaiting->value) {
-                    header('Location: ../Tutor/Awaiting.php');
-                    exit();
-                }
-                header('Location: ../Tutor/Overview.php');
-                exit();
-            case 3: // Student
-                header('Location: ../Visitor/Courses.php');
-                exit();
-            default:
-                throw new Exception("Invalid user role.");
-        }
     } catch (Exception $e) {
         $error = $e->getMessage();
     }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>

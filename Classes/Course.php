@@ -1,7 +1,7 @@
 <?php
 require_once 'Database.php'; // Include the Database class
 
-abstract class Course
+class Course
 {
     private ?int $id_course; // Nullable because it may not be set before insertion
     private string $title;
@@ -74,10 +74,6 @@ abstract class Course
     {
         $this->price = $price;
     }
-
-    // Method to create a new course
-    abstract public function createCourseContent();
-    abstract public function showCourseContent();
 
     // Method to delete a course
     public function delete(): bool
@@ -236,14 +232,14 @@ abstract class Course
     }
 
 
-    public static function showInCatalogue(PDO $db, int $page = 1, int $perPage = 10): array
+    public static function showInCatalogue(PDO $db, int $page = 1, int $perPage = 10, string $search = ''): array
     {
         try {
             // Calculate the offset
             $offset = ($page - 1) * $perPage;
 
-            // Prepare the SQL query with LIMIT and OFFSET
-            $stmt = $db->prepare("
+            // Prepare the SQL query with search condition
+            $sql = "
                 SELECT 
                     c.id_course, 
                     c.title, 
@@ -266,10 +262,22 @@ abstract class Course
                     enrollement AS e ON c.id_course = e.id_course
                 WHERE 
                     c.status = 'activated' AND c.archive = '0'
-                GROUP BY 
-                    c.id_course
-                LIMIT :limit OFFSET :offset
-            ");
+            ";
+
+            // Add search condition if search term is provided
+            if (!empty($search)) {
+                $sql .= " AND (c.title LIKE :search OR c.description LIKE :search OR cat.name LIKE :search)";
+            }
+
+            $sql .= " GROUP BY c.id_course LIMIT :limit OFFSET :offset";
+
+            $stmt = $db->prepare($sql);
+
+            // Bind the search term if provided
+            if (!empty($search)) {
+                $searchTerm = "%$search%";
+                $stmt->bindValue(':search', $searchTerm, PDO::PARAM_STR);
+            }
 
             // Bind the pagination parameters
             $stmt->bindValue(':limit', $perPage, PDO::PARAM_INT);
@@ -283,22 +291,36 @@ abstract class Course
         }
     }
 
-    public static function countCourses(PDO $db): int
-    {
-        try {
-            $stmt = $db->prepare("
-                SELECT COUNT(*) AS total
-                FROM course
-                WHERE status = 'activated' AND archive = '0'
-            ");
-            $stmt->execute();
-            $result = $stmt->fetch(PDO::FETCH_ASSOC);
-            return (int) $result['total']; // Return the total number of courses
-        } catch (PDOException $e) {
-            error_log("Database error in countCourses: " . $e->getMessage());
-            return 0; // Return 0 if there's an error
+    public static function countCourses(PDO $db, string $search = ''): int
+{
+    try {
+        $sql = "
+            SELECT COUNT(*) AS total
+            FROM course
+            WHERE status = 'activated' AND archive = '0'
+        ";
+
+        // Add search condition if search term is provided
+        if (!empty($search)) {
+            $sql .= " AND (title LIKE :search OR description LIKE :search)";
         }
+
+        $stmt = $db->prepare($sql);
+
+        // Bind the search term if provided
+        if (!empty($search)) {
+            $searchTerm = "%$search%";
+            $stmt->bindValue(':search', $searchTerm, PDO::PARAM_STR);
+        }
+
+        $stmt->execute();
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return (int) $result['total']; // Return the total number of courses
+    } catch (PDOException $e) {
+        error_log("Database error in countCourses: " . $e->getMessage());
+        return 0; // Return 0 if there's an error
     }
+}
 
     public static function getCourseDetails($db, $courseId) {
         $query = "SELECT c.*, u.first_name, u.last_name 

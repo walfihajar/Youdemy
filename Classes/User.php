@@ -109,13 +109,16 @@ class User {
     }
 
     public static function signin($email, $password) {
+        if (session_status() == PHP_SESSION_NONE) {
+            session_start();
+        }
+    
         $user = self::findByEmail($email);
     
         if (!$user || !password_verify($password, $user->password)) {
             throw new Exception("Invalid email or password");
         }
     
-        session_start();
         session_regenerate_id(true);
         $_SESSION['user'] = [
             'id_user' => $user->id_user,
@@ -123,10 +126,9 @@ class User {
             'last_name' => $user->last_name,
             'email' => $user->email,
             'id_role' => $user->id_role,
-            'status' => $user->getStatus(), // Add status to the session
+            'status' => $user->getStatus(),
         ];
     
-        // Check if the user is a tutor and their status is "awaiting"
         if ($user->id_role == 2) {
             if ($user->getStatus() == STATUS::awaiting->value) {
                 header('Location: ../Tutor/Awaiting.php');
@@ -136,15 +138,20 @@ class User {
                 exit();
             }
         }
-
     }
-
+    
     public static function logout() {
-        session_start();
+        if (session_status() == PHP_SESSION_NONE) {
+            session_start();
+        }
+    
         session_unset();
         session_destroy();
-
+    
         header("Location: ../Visitor/index.php");
         exit();
     }
+
 }
+
+    
