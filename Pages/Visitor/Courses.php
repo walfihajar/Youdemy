@@ -35,27 +35,7 @@ $userRole = $isLoggedIn ? $_SESSION['user']['id_role'] : null;
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <style>
-        /* Custom styles for hover effects and transitions */
-        .card-hover:hover {
-            transform: translateY(-5px);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-        }
-
-        .pagination-button {
-            transition: background-color 0.3s ease, transform 0.3s ease;
-        }
-
-        .pagination-button:hover {
-            background-color: #7c3aed; /* Darker purple on hover */
-            transform: scale(1.05);
-        }
-
-        .footer {
-            background: linear-gradient(135deg, #6d28d9, #8b5cf6); /* Gradient background */
-        }
-    </style>
+  
 </head>
 <body class="bg-gray-100">
     <!-- Header -->

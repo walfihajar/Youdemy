@@ -1,6 +1,7 @@
 <?php
 require_once 'Database.php'; // Include the Database class
-
+require_once 'ContentText.php';
+require_once 'ContentVideo.php';
 class Course
 {
     private ?int $id_course; // Nullable because it may not be set before insertion
@@ -369,6 +370,25 @@ class Course
         $stmt->execute([$userId]);
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         return $result['total_courses'];
+    }
+    // Méthode pour vérifier le type de contenu et ajouter le contenu approprié
+    public function verifyTypeCours(string $contentType, array $contentData): bool
+    {
+        // Vérifier le type de contenu sélectionné
+        if ($contentType === 'video') {
+            // Créer une instance de ContentVideo
+            $contentVideo = new ContentVideo($this->db, null, $this->id_course, 'video', $contentData['video-url']);
+            // Appeler la méthode add() de ContentVideo
+            return $contentVideo->add();
+        } elseif ($contentType === 'text') {
+            // Créer une instance de ContentText
+            $contentText = new ContentText($this->db, null, $this->id_course, 'text', $contentData['text-content']);
+            // Appeler la méthode add() de ContentText
+            return $contentText->add();
+        } else {
+            // Si le type de contenu n'est pas valide, retourner false
+            return false;
+        }
     }
 }
 ?>

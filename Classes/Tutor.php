@@ -78,4 +78,6 @@ class Tutor extends User {
         $stmt->bindParam(':id_user', $this->id_user, PDO::PARAM_INT);
         return $stmt->execute();
     }
+    
+
 }

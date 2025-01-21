@@ -25,13 +25,6 @@ require_once '../../Classes/Database.php';
             </div>
         </section>
 
-        <section class="container mx-auto py-20">
-            <h2 class="text-center text-3xl font-bold text-gray-800 mb-12">Search Courses</h2>
-            <div class="flex justify-center">
-                <input type="text" placeholder="Search for a course" class="w-full max-w-md px-4 py-3 border rounded-l-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-                <button class="bg-purple-600 text-white px-6 py-3 rounded-r-md hover:bg-purple-700 transition-colors duration-300">Search</button>
-            </div>
-        </section>
 
         <section class="bg-purple-50 py-20">
             <div class="container mx-auto">

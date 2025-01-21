@@ -94,6 +94,7 @@ $topTeachers = $topTeachersStmt->fetchAll(PDO::FETCH_ASSOC);
             </div>
         </div>
     </section>
+
 <?php
 $content = ob_get_clean();
 require_once '../../Includes/Layout_Admin.php';

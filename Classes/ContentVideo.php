@@ -1,9 +1,16 @@
 <?php
 require_once 'Database.php';
+require_once 'Content.php';
 
 class ContentVideo extends Content
 {
-    private ?string $url;
+    private ?string $url = null;
+    private ?string $title = null;
+    private ?string $description = null;
+    private ?string $picture = null;
+    private ?float $price = null;
+    private ?int $id_category = null;
+    private ?int $id_user = null;
 
     public function __construct(
         PDO $db,
@@ -14,6 +21,43 @@ class ContentVideo extends Content
     ) {
         parent::__construct($db, $id_content, $id_course, $type);
         $this->url = $url;
+    }
+
+    // Setters et getters pour les nouvelles propriétés
+    public function setTitle(?string $title): self
+    {
+        $this->title = $title;
+        return $this;
+    }
+
+    public function setDescription(?string $description): self
+    {
+        $this->description = $description;
+        return $this;
+    }
+
+    public function setPicture(?string $picture): self
+    {
+        $this->picture = $picture;
+        return $this;
+    }
+
+    public function setPrice(?float $price): self
+    {
+        $this->price = $price;
+        return $this;
+    }
+
+    public function setIdCategory(?int $id_category): self
+    {
+        $this->id_category = $id_category;
+        return $this;
+    }
+
+    public function setIdUser(?int $id_user): self
+    {
+        $this->id_user = $id_user;
+        return $this;
     }
 
     public function setUrl(?string $url): self
@@ -29,12 +73,30 @@ class ContentVideo extends Content
 
     public function add(): bool
     {
-        $sql = "INSERT INTO content (id_course, type, url_video) VALUES (:id_course, :type, :url_video)";
-        $stmt = $this->db->prepare($sql);
-        $stmt->bindParam(':id_course', $this->id_course, PDO::PARAM_INT);
-        $stmt->bindParam(':type', $this->type, PDO::PARAM_STR);
-        $stmt->bindParam(':url_video', $this->url, PDO::PARAM_STR);
-        return $stmt->execute();
+        // Insérer le cours dans la table `course`
+        $sqlCourse = "INSERT INTO course (title, description, picture, id_category, id_user, created_at, price, status, archive, content_type) 
+                      VALUES (:title, :description, :picture, :id_category, :id_user, :created_at, :price, 'activated', '0', :content_type)";
+        $stmtCourse = $this->db->prepare($sqlCourse);
+        $stmtCourse->bindParam(':title', $this->title, PDO::PARAM_STR);
+        $stmtCourse->bindParam(':description', $this->description, PDO::PARAM_STR);
+        $stmtCourse->bindParam(':picture', $this->picture, PDO::PARAM_STR);
+        $stmtCourse->bindParam(':id_category', $this->id_category, PDO::PARAM_INT);
+        $stmtCourse->bindParam(':id_user', $this->id_user, PDO::PARAM_INT);
+        $stmtCourse->bindParam(':created_at', date('Y-m-d H:i:s'));
+        $stmtCourse->bindParam(':price', $this->price, PDO::PARAM_STR);
+        $stmtCourse->bindParam(':content_type', $this->type, PDO::PARAM_STR);
+        $stmtCourse->execute();
+
+        // Récupérer l'ID du cours inséré
+        $this->id_course = $this->db->lastInsertId();
+
+        // Insérer le contenu vidéo dans la table `content`
+        $sqlContent = "INSERT INTO content (id_course, type, url_video) VALUES (:id_course, :type, :url_video)";
+        $stmtContent = $this->db->prepare($sqlContent);
+        $stmtContent->bindParam(':id_course', $this->id_course, PDO::PARAM_INT);
+        $stmtContent->bindParam(':type', $this->type, PDO::PARAM_STR);
+        $stmtContent->bindParam(':url_video', $this->url, PDO::PARAM_STR);
+        return $stmtContent->execute();
     }
 
     public function update(): bool
@@ -78,3 +140,5 @@ class ContentVideo extends Content
         return null;
     }
 }
+
+
