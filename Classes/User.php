@@ -110,10 +110,11 @@ class User {
 
     public static function signin($email, $password) {
         $user = self::findByEmail($email);
-
+    
         if (!$user || !password_verify($password, $user->password)) {
             throw new Exception("Invalid email or password");
         }
+    
         session_start();
         session_regenerate_id(true);
         $_SESSION['user'] = [
@@ -122,9 +123,20 @@ class User {
             'last_name' => $user->last_name,
             'email' => $user->email,
             'id_role' => $user->id_role,
+            'status' => $user->getStatus(), // Add status to the session
         ];
+    
+        // Check if the user is a tutor and their status is "awaiting"
+        if ($user->id_role == 2) {
+            if ($user->getStatus() == STATUS::awaiting->value) {
+                header('Location: ../Tutor/Awaiting.php');
+                exit();
+            } elseif ($user->getStatus() == STATUS::activated->value) {
+                header('Location: ../Tutor/Overview.php');
+                exit();
+            }
+        }
 
-        return $user;
     }
 
     public static function logout() {

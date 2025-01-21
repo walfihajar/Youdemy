@@ -29,9 +29,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         );
         $user->save();
         if ($id_role === 2) { // Tutor
-            header("Location: ../../../Tutor/Awaiting.php");
+            header("Location: ../Tutor/Awaiting.php");
         } else { // Student
-            header("Location: ../../../Visitor/Courses.php");
+            header("Location: ../Visitor/Courses.php");
         }
         exit();
 

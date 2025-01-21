@@ -2,12 +2,18 @@
 session_start();
 
 require_once '../../Classes/Database.php';
+require_once '../../Classes/User.php';
 
 if (!isset($_SESSION['user']) || $_SESSION['user']['id_role'] != 2) {
     header('Location: ' . PROJECT_PATH . 'Pages/Auth/Login.php');
     exit();
 }
 
+// Ensure the teacher's status is "activated"
+if ($_SESSION['user']['status'] != STATUS::activated->value) {
+    header('Location: ../Tutor/Awaiting.php');
+    exit();
+}
 $id_teacher = $_SESSION['user']['id_user'];
 $db = Database::getInstance()->getConnection();
 

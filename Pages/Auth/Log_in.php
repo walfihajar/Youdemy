@@ -15,12 +15,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Set session variables
         $_SESSION['email'] = $user->getEmail();
         $_SESSION['id_role'] = $user->getIdRole();
+        $_SESSION['status'] = $user->getStatus(); // Add status to session
 
         switch ($user->getIdRole()) {
             case 1: // Admin
                 header('Location: ../Admin/Overview.php');
                 exit();
             case 2: // Teacher
+                if ($user->getStatus() == STATUS::awaiting->value) {
+                    header('Location: ../Tutor/Awaiting.php');
+                    exit();
+                }
                 header('Location: ../Tutor/Overview.php');
                 exit();
             case 3: // Student
