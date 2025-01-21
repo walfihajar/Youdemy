@@ -137,6 +137,10 @@ class User {
                 header('Location: ../Tutor/Overview.php');
                 exit();
             }
+        }else if ($user->id_role == 1){
+            header('Location: ../Admin/Overview.php');
+        }else {
+            header('Location: ../Learner/Dashboard.php');
         }
     }
     

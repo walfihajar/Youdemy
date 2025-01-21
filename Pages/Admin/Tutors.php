@@ -13,11 +13,20 @@ if (!isset($_SESSION['user']) || $_SESSION['user']['id_role'] != 1) {
 // Get database connection
 $db = Database::getInstance()->getConnection();
 
-// Handle Activate Tutor
+// Handle Activate/Deactivate Tutor
 if (isset($_POST['activate_user']) && isset($_POST['id_user'])) {
     $id_user = (int)$_POST['id_user'];
-    $tutor = new Tutor($db, $id_user); // Pass the database connection and user ID
+    $tutor = new Tutor($db, $id_user);
     if ($tutor->activate()) {
+        header('Location: ' . $_SERVER['PHP_SELF']);
+        exit();
+    }
+}
+
+if (isset($_POST['deactivate_user']) && isset($_POST['id_user'])) {
+    $id_user = (int)$_POST['id_user'];
+    $tutor = new Tutor($db, $id_user);
+    if ($tutor->deactivate()) {
         header('Location: ' . $_SERVER['PHP_SELF']);
         exit();
     }
@@ -26,16 +35,16 @@ if (isset($_POST['activate_user']) && isset($_POST['id_user'])) {
 // Handle Delete Tutor
 if (isset($_POST['delete_user']) && isset($_POST['id_user'])) {
     $id_user = (int)$_POST['id_user'];
-    $tutor = new Tutor($db, $id_user); // Pass the database connection and user ID
+    $tutor = new Tutor($db, $id_user);
     if ($tutor->delete()) {
         header('Location: ' . $_SERVER['PHP_SELF']);
         exit();
     }
 }
 
-// Fetch tutors awaiting approval
-$tutor = new Tutor($db); // Pass the database connection
-$users = Tutor::approveTutors($db); // Fetch tutors awaiting approval
+// Fetch all tutors
+$tutor = new Tutor($db);
+$users = Tutor::showTutors($db);
 ?>
 
 <div class="p-4">
@@ -63,13 +72,22 @@ $users = Tutor::approveTutors($db); // Fetch tutors awaiting approval
                             </span>
                         </td>
                         <td class="py-4 px-6 flex justify-center space-x-4">
-                            <!-- Activate Button -->
-                            <form action="" method="POST">
-                                <input type="hidden" name="id_user" value="<?= $user->getIdUser() ?>">
-                                <button type="submit" name="activate_user" class="text-green-500 hover:text-green-700 transition-colors duration-300" title="Activate">
-                                    <i class="fas fa-check-circle text-xl"></i>
-                                </button>
-                            </form>
+                            <!-- Activate/Deactivate Button -->
+                            <?php if ($user->getStatus() === 'activated'): ?>
+                                <form action="" method="POST">
+                                    <input type="hidden" name="id_user" value="<?= $user->getIdUser() ?>">
+                                    <button type="submit" name="deactivate_user" class="text-yellow-500 hover:text-yellow-700 transition-colors duration-300" title="Suspend">
+                                        <i class="fas fa-pause-circle text-xl"></i> <!-- Changed to pause icon -->
+                                    </button>
+                                </form>
+                            <?php else: ?>
+                                <form action="" method="POST">
+                                    <input type="hidden" name="id_user" value="<?= $user->getIdUser() ?>">
+                                    <button type="submit" name="activate_user" class="text-green-500 hover:text-green-700 transition-colors duration-300" title="Activate">
+                                        <i class="fas fa-check-circle text-xl"></i>
+                                    </button>
+                                </form>
+                            <?php endif; ?>
 
                             <!-- Delete Button -->
                             <form action="" method="POST">
@@ -83,7 +101,7 @@ $users = Tutor::approveTutors($db); // Fetch tutors awaiting approval
                 <?php endforeach; ?>
             <?php else: ?>
                 <tr>
-                    <td colspan="5" class="py-4 px-6 text-center">No tutors awaiting approval.</td>
+                    <td colspan="5" class="py-4 px-6 text-center">No tutors found.</td>
                 </tr>
             <?php endif; ?>
         </tbody>
