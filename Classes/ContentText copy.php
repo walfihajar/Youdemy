@@ -72,7 +72,7 @@ class ContentText extends Content
         return $this->content ?? '';
     }
 
-    public function add(): int|bool
+    public function add(): bool
     {
         $sqlCourse = "INSERT INTO course (title, description, picture, id_category, id_user, created_at, price, status, archive, content_type) 
                       VALUES (:title, :description, :picture, :id_category, :id_user, :created_at, :price, 'activated', '0', :content_type)";
@@ -82,29 +82,19 @@ class ContentText extends Content
         $stmtCourse->bindParam(':picture', $this->picture, PDO::PARAM_STR);
         $stmtCourse->bindParam(':id_category', $this->id_category, PDO::PARAM_INT);
         $stmtCourse->bindParam(':id_user', $this->id_user, PDO::PARAM_INT);
-        $stmtCourse->bindValue(':created_at', date('Y-m-d H:i:s'));
+        $stmtCourse->bindValue(':created_at', date('Y-m-d H:i:s')); 
         $stmtCourse->bindParam(':price', $this->price, PDO::PARAM_STR);
         $stmtCourse->bindParam(':content_type', $this->type, PDO::PARAM_STR);
         $stmtCourse->execute();
+
         $this->id_course = $this->db->lastInsertId();
 
-       // var_dump($this->id_course); 
-       // die(); 
-        if ($stmtCourse->execute()) {
-            $this->id_course = $this->db->lastInsertId();
-            $sqlContent = "INSERT INTO content (id_course, type, content_text) VALUES (:id_course, :type, :content_text)";
-            $stmtContent = $this->db->prepare($sqlContent);
-            $stmtContent->bindParam(':id_course', $this->id_course, PDO::PARAM_INT);
-            $stmtContent->bindParam(':type', $this->type, PDO::PARAM_STR);
-            $stmtContent->bindParam(':content_text', $this->content, PDO::PARAM_STR);
-            $stmtContent->execute();
-        }
-
-        if (  $stmtContent->execute()) {
-              return $this->id_course;
-        }
-
-        return false ; 
+        $sqlContent = "INSERT INTO content (id_course, type, content_text) VALUES (:id_course, :type, :content_text)";
+        $stmtContent = $this->db->prepare($sqlContent);
+        $stmtContent->bindParam(':id_course', $this->id_course, PDO::PARAM_INT);
+        $stmtContent->bindParam(':type', $this->type, PDO::PARAM_STR);
+        $stmtContent->bindParam(':content_text', $this->content, PDO::PARAM_STR);
+        return $stmtContent->execute();
     }
 
 

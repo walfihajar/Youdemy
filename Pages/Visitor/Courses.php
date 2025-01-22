@@ -1,27 +1,23 @@
 <?php
-// Include necessary files
+
 require_once '../../Classes/Database.php';
 require_once '../../Classes/Course.php';
 require_once '../../Includes/Header.php';
 
-// Get database connection
+
 $db = Database::getInstance()->getConnection();
 
-// Fetch the search term from the query string
 $search = isset($_GET['search']) ? trim($_GET['search']) : '';
 
-// Pagination settings
-$perPage = 6; // Number of courses per page
-$page = isset($_GET['page']) ? (int) $_GET['page'] : 1; // Current page (default is 1)
 
-// Fetch courses for the current page with search term
+$perPage = 6; 
+$page = isset($_GET['page']) ? (int) $_GET['page'] : 1; 
+
 $courses = Course::showInCatalogue($db, $page, $perPage, $search);
 
-// Fetch total number of courses with search term
 $totalCourses = Course::countCourses($db, $search);
-$totalPages = ceil($totalCourses / $perPage); // Total number of pages
+$totalPages = ceil($totalCourses / $perPage); 
 
-// Check if the user is logged in and get their role
 $isLoggedIn = isset($_SESSION['user']);
 $userRole = $isLoggedIn ? $_SESSION['user']['id_role'] : null;
 ?>
@@ -38,7 +34,7 @@ $userRole = $isLoggedIn ? $_SESSION['user']['id_role'] : null;
   
 </head>
 <body class="bg-gray-100">
-    <!-- Header -->
+
     <header class="bg-gradient-to-r from-purple-600 to-purple-800 text-white py-8 md:py-12">
         <div class="container mx-auto text-center px-4">
             <h1 class="text-3xl md:text-5xl font-bold mb-2 md:mb-4">Course Catalogue</h1>
@@ -46,7 +42,7 @@ $userRole = $isLoggedIn ? $_SESSION['user']['id_role'] : null;
         </div>
     </header>
 
-    <!-- Search Form -->
+
     <div class="container mx-auto p-4 md:p-8">
         <form action="" method="GET" class="mb-6">
             <div class="flex items-center">
@@ -56,20 +52,18 @@ $userRole = $isLoggedIn ? $_SESSION['user']['id_role'] : null;
         </form>
     </div>
 
-    <!-- Course Grid -->
     <div class="container mx-auto p-4 md:p-8">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
             <?php if (!empty($courses)): ?>
                 <?php foreach ($courses as $course): ?>
                     <div class="bg-white p-4 md:p-6 rounded-lg shadow-md card-hover transition-transform">
-                        <!-- Course Image -->
+
                         <img src="<?= htmlspecialchars($course['picture']) ?>" alt="Course Image" class="w-full h-40 md:h-48 object-cover rounded-lg mb-4">
 
-                        <!-- Course Title and Author -->
                         <h3 class="text-lg md:text-xl font-bold text-purple-700 mb-2"><?= htmlspecialchars($course['title']) ?></h3>
                         <p class="text-xs md:text-sm text-gray-600 mb-4">By <?= htmlspecialchars($course['first_name'] . ' ' . $course['last_name']) ?></p>
 
-                        <!-- Category and Enrollment Count -->
+
                         <div class="flex items-center justify-between mb-4">
                             <span class="px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs md:text-sm">
                                 <?= htmlspecialchars($course['category']) ?>
@@ -80,7 +74,6 @@ $userRole = $isLoggedIn ? $_SESSION['user']['id_role'] : null;
                             </div>
                         </div>
 
-                        <!-- View Details Button -->
                         <div class="mt-4">
                             <button onclick="handleViewDetails(<?= $course['id_course'] ?>)" class="w-full bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors text-sm md:text-base">
                                 View Details
@@ -96,18 +89,18 @@ $userRole = $isLoggedIn ? $_SESSION['user']['id_role'] : null;
         </div>
     </div>
 
-    <!-- Pagination -->
+
     <div class="flex justify-center mt-6 md:mt-8 mb-8 md:mb-12">
         <?php if ($totalPages > 1): ?>
             <div class="flex space-x-2">
-                <!-- Previous Button -->
+
                 <?php if ($page > 1): ?>
                     <a href="?page=<?= $page - 1 ?>&search=<?= urlencode($search) ?>" class="pagination-button px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm md:text-base">Previous</a>
                 <?php else: ?>
                     <span class="px-4 py-2 bg-purple-300 text-white rounded-lg text-sm md:text-base cursor-not-allowed">Previous</span>
                 <?php endif; ?>
 
-                <!-- Next Button -->
+
                 <?php if ($page < $totalPages): ?>
                     <a href="?page=<?= $page + 1 ?>&search=<?= urlencode($search) ?>" class="pagination-button px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm md:text-base">Next</a>
                 <?php else: ?>
@@ -137,7 +130,6 @@ $userRole = $isLoggedIn ? $_SESSION['user']['id_role'] : null;
                 }
             });
         } else {
-            // Redirect to the course details page
             window.location.href = `../Learner/CourseDetails.php?id=${courseId}`;
         }
     }

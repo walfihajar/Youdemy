@@ -4,17 +4,19 @@ session_start();
 require_once '../../Classes/User.php';
 require_once '../../Classes/Database.php';
 
-if (!isset($_SESSION['user']) || $_SESSION['user']['id_role'] != 2) {
-    header('Location: ' . PROJECT_PATH . 'Pages/Auth/Log_in.php');
+if (!isset($_SESSION['user'])) {
+    header("Location: ../Visitor/Log_in.php");
     exit();
 }
 
-// Ensure the teacher's status is "awaiting"
-if ($_SESSION['user']['status'] != STATUS::awaiting->value) {
-    header('Location: ' . PROJECT_PATH . 'Pages/Tutor/Overview.php');
+
+if ($_SESSION['user']['id_role'] !== 2) {
+    header("Location: ../Visitor/index.php");
     exit();
 }
+
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">

@@ -31,7 +31,7 @@ if (!isset($_SESSION['user']) || $_SESSION['user']['id_role'] != 1) {
 <body>
   <div class="flex min-h-screen flex-col md:flex-row">
     <!-- Sidebar -->
-    <nav id="sidebar" class="sidebar w-full md:w-1/5 bg-white  shadow-lg p-6 fixed md:relative top-0 left-0 h-screen z-10 md:transform-none sidebar-hidden">
+    <nav id="sidebar" class="sidebar w-full md:w-1/5 bg-white h-screen shadow-lg p-6 fixed md:relative top-0 left-0 h-screen z-10 md:transform-none sidebar-hidden">
       <div class="mb-8">
         <a href="<?php echo PROJECT_PATH; ?>Pages/Visitor/index.php" class="flex items-center">
           <img src="../../Assets/uploads/logo.gif" class="w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14">

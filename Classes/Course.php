@@ -1,21 +1,21 @@
 <?php
-require_once 'Database.php'; // Include the Database class
+require_once 'Database.php'; 
 require_once 'ContentText.php';
 require_once 'ContentVideo.php';
 class Course
 {
-    private ?int $id_course; // Nullable because it may not be set before insertion
+    private ?int $id_course;
     private string $title;
     private string $description;
     private string $picture;
     private float $price;
     private string $created_at;
-    private PDO $db; // Database connection
+    private PDO $db;
 
     // Constructor
     public function __construct(PDO $db, ?int $id_course = null, string $title = '', string $description = '', string $picture = '', float $price = 0.0, string $created_at = '')
     {
-        $this->db = $db; // Initialize the database connection
+        $this->db = $db;
         $this->id_course = $id_course;
         $this->title = $title;
         $this->description = $description;
@@ -24,7 +24,7 @@ class Course
         $this->created_at = $created_at;
     }
 
-    // Getters
+
     public function getIdCourse(): ?int
     {
         return $this->id_course;
@@ -55,7 +55,6 @@ class Course
         return $this->created_at;
     }
 
-    // Setters
     public function setTitle(string $title): void
     {
         $this->title = $title;
@@ -76,7 +75,6 @@ class Course
         $this->price = $price;
     }
 
-    // Method to delete a course
     public function delete(): bool
     {
         $stmt = $this->db->prepare("DELETE FROM course WHERE id_course = :id_course");
@@ -84,7 +82,6 @@ class Course
         return $stmt->execute();
     }
 
-    // Method to modify a course
     public function modify(): bool
     {
         $stmt = $this->db->prepare("
@@ -100,7 +97,6 @@ class Course
         return $stmt->execute();
     }
 
-    // Method to activate a course
     public function activate(): bool
     {
         $stmt = $this->db->prepare("UPDATE course SET status = 'activated' WHERE id_course = :id_course");
@@ -108,7 +104,7 @@ class Course
         return $stmt->execute();
     }
 
-    // Method to deactivate a course
+
     public function deactivate(): bool
     {
         $stmt = $this->db->prepare("UPDATE course SET status = 'suspended' WHERE id_course = :id_course");
@@ -116,7 +112,6 @@ class Course
         return $stmt->execute();
     }
 
-    // Static method to fetch a course by ID
     public static function showById(PDO $db, int $id_course): ?Course
     {
         $stmt = $db->prepare("SELECT * FROM course WHERE id_course = :id_course");
@@ -138,7 +133,6 @@ class Course
         return null;
     }
 
-    // Static method to fetch all courses
     public static function showAll(PDO $db): array
     {
         $stmt = $db->prepare("
@@ -157,7 +151,6 @@ class Course
         return $courses;
     }
 
-    // Static method to fetch courses created by a specific teacher
     public static function showByTeacher(PDO $db, int $id_teacher): array
     {
         $stmt = $db->prepare("SELECT * FROM course WHERE id_user = :id_teacher");
@@ -179,7 +172,6 @@ class Course
         return $courses;
     }
 
-    // Static method to fetch courses a student has enrolled in
     public static function showByStudent(PDO $db, int $id_student): array
     {
         $stmt = $db->prepare("
@@ -206,7 +198,6 @@ class Course
         return $courses;
     }
 
-    // Static method to fetch courses created by a teacher with additional details
     public static function showByTeacherWithDetails(PDO $db, int $id_teacher): array
     {
         $stmt = $db->prepare("
@@ -265,7 +256,6 @@ class Course
                     c.status = 'activated' AND c.archive = '0'
             ";
 
-            // Add search condition if search term is provided
             if (!empty($search)) {
                 $sql .= " AND (c.title LIKE :search OR c.description LIKE :search OR cat.name LIKE :search)";
             }
@@ -274,21 +264,19 @@ class Course
 
             $stmt = $db->prepare($sql);
 
-            // Bind the search term if provided
             if (!empty($search)) {
                 $searchTerm = "%$search%";
                 $stmt->bindValue(':search', $searchTerm, PDO::PARAM_STR);
             }
 
-            // Bind the pagination parameters
             $stmt->bindValue(':limit', $perPage, PDO::PARAM_INT);
             $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
 
             $stmt->execute();
-            return $stmt->fetchAll(PDO::FETCH_ASSOC); // Return the fetched data
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             error_log("Database error in showInCatalogue: " . $e->getMessage());
-            return []; // Return an empty array if there's an error
+            return [];
         }
     }
 
@@ -301,14 +289,12 @@ class Course
             WHERE status = 'activated' AND archive = '0'
         ";
 
-        // Add search condition if search term is provided
         if (!empty($search)) {
             $sql .= " AND (title LIKE :search OR description LIKE :search)";
         }
 
         $stmt = $db->prepare($sql);
 
-        // Bind the search term if provided
         if (!empty($search)) {
             $searchTerm = "%$search%";
             $stmt->bindValue(':search', $searchTerm, PDO::PARAM_STR);
@@ -316,18 +302,32 @@ class Course
 
         $stmt->execute();
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        return (int) $result['total']; // Return the total number of courses
+        return (int) $result['total']; 
     } catch (PDOException $e) {
         error_log("Database error in countCourses: " . $e->getMessage());
-        return 0; // Return 0 if there's an error
+        return 0;
     }
 }
 
     public static function getCourseDetails($db, $courseId) {
-        $query = "SELECT c.*, u.first_name, u.last_name 
-                  FROM course c 
-                  JOIN user u ON c.id_user = u.id_user 
-                  WHERE c.id_course = ?";
+        $query = "
+            SELECT 
+                c.*, 
+                u.first_name, 
+                u.last_name, 
+                ct.type,
+                
+                ct.content_text, 
+                ct.url_video 
+            FROM 
+                course c 
+            JOIN 
+                user u ON c.id_user = u.id_user 
+            LEFT JOIN 
+                content ct ON c.id_course = ct.id_course 
+            WHERE 
+                c.id_course = ?
+        ";
         $stmt = $db->prepare($query);
         $stmt->execute([$courseId]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
@@ -371,22 +371,15 @@ class Course
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         return $result['total_courses'];
     }
-    // Méthode pour vérifier le type de contenu et ajouter le contenu approprié
     public function verifyTypeCours(string $contentType, array $contentData): bool
     {
-        // Vérifier le type de contenu sélectionné
         if ($contentType === 'video') {
-            // Créer une instance de ContentVideo
             $contentVideo = new ContentVideo($this->db, null, $this->id_course, 'video', $contentData['video-url']);
-            // Appeler la méthode add() de ContentVideo
             return $contentVideo->add();
         } elseif ($contentType === 'text') {
-            // Créer une instance de ContentText
             $contentText = new ContentText($this->db, null, $this->id_course, 'text', $contentData['text-content']);
-            // Appeler la méthode add() de ContentText
             return $contentText->add();
         } else {
-            // Si le type de contenu n'est pas valide, retourner false
             return false;
         }
     }

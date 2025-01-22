@@ -33,35 +33,40 @@ class User {
         $this->status = STATUS::from($status);
     }
 
-    // Corriger la méthode getStatus
+    // Corrected method to return the status value
     public function getStatus(): string {
-        return $this->status->value; // Utiliser value au lieu de name
+        return $this->status->value;
     }
 
-    // Modifier la méthode save()
+    // Save method with password hashing and ID retrieval
     public function save() {
         $db = Database::getInstance()->getConnection();
         try {
+            // Hash the password before saving it
+            $hashedPassword = password_hash($this->password, PASSWORD_DEFAULT);
+
             $stmt = $db->prepare("INSERT INTO user (first_name, last_name, email, password, id_role, status) 
                 VALUES (:first_name, :last_name, :email, :password, :id_role, :status)");
             
-            // Utiliser bindValue() au lieu de bindParam()
             $stmt->bindValue(':first_name', $this->first_name);
             $stmt->bindValue(':last_name', $this->last_name);
             $stmt->bindValue(':email', $this->email);
-            $stmt->bindValue(':password', $this->password);
+            $stmt->bindValue(':password', $hashedPassword);
             $stmt->bindValue(':id_role', $this->id_role, PDO::PARAM_INT);
             $stmt->bindValue(':status', $this->status->value);
             
             $stmt->execute();
+
+            // Retrieve the last inserted ID and set it to $id_user
+            $this->id_user = $db->lastInsertId();
         } catch (PDOException $e) {
             error_log("Database error: " . $e->getMessage());
             throw new Exception("An error occurred while saving the user.");
         }
     }
 
-
-    public function getIdUser(): int {
+    // Allow getIdUser() to return null
+    public function getIdUser(): ?int {
         return $this->id_user;
     }
 
@@ -84,7 +89,6 @@ class User {
     public function getIdRole(): int {
         return $this->id_role;
     }
-
 
     public static function findByEmail($email) {
         $db = Database::getInstance()->getConnection();
@@ -137,9 +141,9 @@ class User {
                 header('Location: ../Tutor/Overview.php');
                 exit();
             }
-        }else if ($user->id_role == 1){
+        } else if ($user->id_role == 1) {
             header('Location: ../Admin/Overview.php');
-        }else {
+        } else {
             header('Location: ../Learner/Dashboard.php');
         }
     }
@@ -155,7 +159,4 @@ class User {
         header("Location: ../Visitor/index.php");
         exit();
     }
-
 }
-
-    

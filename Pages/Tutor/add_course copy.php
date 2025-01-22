@@ -66,27 +66,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $content->setPrice($price);
     $content->setIdCategory($id_category);
     $content->setIdUser($_SESSION['user']['id_user']);
-    $courseId = $content->add() ;
-    // echo"test tag";
-    //      var_dump( $courseId) ;
-    // die();
-    if (!empty($courseId)) {
 
-       // $courseId = $db->lastInsertId();
+    if ($content->add()) {
+
+        $courseId = $db->lastInsertId();
 
         if (!empty($selectedTags)) {
             $tagQuery = "INSERT INTO course_tag (id_course, id_tag) VALUES (:id_course, :id_tag)";
             $tagStmt = $db->prepare($tagQuery);
-           
+
             foreach ($selectedTags as $tagId) {
                 $tagStmt->execute([
                     ':id_course' => $courseId,
                     ':id_tag' => $tagId
                 ]);
             }
-
-
-
         }
 
         $_SESSION['success'] = "Cours créé avec succès!";

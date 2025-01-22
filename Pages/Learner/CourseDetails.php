@@ -1,23 +1,13 @@
 <?php
-// Include necessary files
 require_once '../../Classes/Database.php';
 require_once '../../Classes/Course.php';
-require_once '../../Classes/Enrollement.php'; // Include the Enrollment class
+require_once '../../Classes/Enrollement.php'; 
 require_once '../../Includes/Header.php';
 ob_start();
 
-// Get database connection
 $db = Database::getInstance()->getConnection();
 
-// Check if course ID is provided
-if (!isset($_GET['id'])) {
-    header('Location: ../Catalogue/Catalogue.php');
-    exit();
-}
-
 $courseId = (int) $_GET['id'];
-
-// Fetch course details
 $course = Course::getCourseDetails($db, $courseId);
 
 if (!$course) {
@@ -25,29 +15,21 @@ if (!$course) {
     exit();
 }
 
-// Check if the user is logged in and get their role
 $isLoggedIn = isset($_SESSION['user']);
 $userId = $isLoggedIn ? $_SESSION['user']['id_user'] : null;
 $userRole = $isLoggedIn ? $_SESSION['user']['id_role'] : null;
 
-// Instantiate the Enrollment class with course ID and user ID
 $enrollment = new Enrollment($db, $courseId, $userId);
-
-// Check if the user is already enrolled in the course
 $isEnrolled = $isLoggedIn ? $enrollment->isUserEnrolled() : false;
 
-// Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $isLoggedIn && $userRole === 3) {
     $success = $enrollment->enrollUser();
 
     if ($success) {
-        // Set a success message in the session
         $_SESSION['success_message'] = 'You have successfully enrolled in the course. Study well!';
-        // Refresh the page to update the enrollment status
         header('Location: ' . $_SERVER['PHP_SELF'] . '?id=' . $courseId);
         exit();
     } else {
-        // Set an error message in the session
         $_SESSION['error_message'] = 'You are already enrolled in this course.';
     }
 }
@@ -84,10 +66,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $isLoggedIn && $userRole === 3) {
                 <p class="text-gray-600"><?= htmlspecialchars($course['description']) ?></p>
             </div>
 
+
             <!-- Course Content -->
             <div class="mb-6">
                 <h3 class="text-xl font-bold text-purple-700 mb-2">Course Content</h3>
-                <p class="text-gray-600"><?= htmlspecialchars($course['content']) ?></p>
+                <?php if ($course['type'] === 'video' && !empty($course['url_video'])): ?>
+                    <!-- Afficher la vidéo -->
+                    <div class="video-container mb-4">
+                        <iframe 
+                            width="560" 
+                            height="315" 
+                            src="<?= htmlspecialchars($course['url_video']) ?>" 
+                            frameborder="0" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowfullscreen>
+                        </iframe>
+                    </div>
+                <?php elseif ($course['type'] === 'text' && !empty($course['content_text'])): ?>
+                    <!-- Afficher le texte -->
+                    <div class="text-content bg-gray-50 p-4 rounded-lg">
+                        <p class="text-gray-600"><?= nl2br(htmlspecialchars($course['content_text'])) ?></p>
+                    </div>
+                <?php else: ?>
+                    <!-- Aucun contenu disponible -->
+                    <p class="text-gray-600">No content available for this course.</p>
+                <?php endif; ?>
             </div>
 
             <!-- Enroll Now Button -->
@@ -105,7 +108,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $isLoggedIn && $userRole === 3) {
 
     <!-- SweetAlert2 Script -->
     <script>
-        // Check if there's a success or error message in the session
         <?php if (isset($_SESSION['success_message'])): ?>
             Swal.fire({
                 title: 'Enrolled Successfully!',
@@ -119,7 +121,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $isLoggedIn && $userRole === 3) {
                     window.location.href = './Dashboard.php';
                 }
             });
-            <?php unset($_SESSION['success_message']); // Clear the message ?>
+            <?php unset($_SESSION['success_message']); ?>
         <?php endif; ?>
 
         <?php if (isset($_SESSION['error_message'])): ?>
@@ -133,7 +135,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $isLoggedIn && $userRole === 3) {
                     window.location.href = './Dashboard.php';
                 }
             });
-            <?php unset($_SESSION['error_message']); // Clear the message ?>
+            <?php unset($_SESSION['error_message']); ?>
         <?php endif; ?>
     </script>
 </body>

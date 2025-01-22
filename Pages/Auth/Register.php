@@ -1,4 +1,5 @@
 <?php
+session_start(); // Start the session
 require_once '../../Classes/User.php';
 require_once '../../Classes/Database.php';
 
@@ -15,22 +16,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             throw new Exception("Tous les champs sont obligatoires");
         }
 
-        // Détermination automatique du statut
         $status = ($id_role === 3) ? STATUS::activated->value : STATUS::awaiting->value;
 
         $user = new User(
-            null,
+            null, // id_user is null initially
             $first_name,
             $last_name,
             $email,
-            password_hash($password, PASSWORD_DEFAULT),
+            $password, // Password will be hashed in save()
             $id_role,
-            $status // Passer la valeur directement
+            $status 
         );
-        $user->save();
+        $user->save(); // Save the user and set the id_user
+
+        // Log the user in after registration
+        $_SESSION['user'] = [
+            'id_user' => $user->getIdUser(), // Now this will return the correct ID
+            'first_name' => $user->getFirstName(),
+            'last_name' => $user->getLastName(),
+            'email' => $user->getEmail(),
+            'id_role' => $user->getIdRole(),
+            'status' => $user->getStatus(),
+        ];
+
+        // Redirect based on role
         if ($id_role === 2) { // Tutor
             header("Location: ../Tutor/Awaiting.php");
-        } else { // Student
+        } else { 
             header("Location: ../Visitor/Courses.php");
         }
         exit();

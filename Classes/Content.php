@@ -17,7 +17,7 @@ abstract class Content
         $this->type = $type;
     }
 
-    abstract public function add(): bool;
+    abstract public function add(): int|bool;
     abstract public function display(): string ;
     abstract public function update(): bool;
 }

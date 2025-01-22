@@ -9,6 +9,7 @@ require_once '../../Classes/Database.php';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>E-Learning Platform</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="../../Assets/css/style.css" rel="stylesheet">
 </head>
 <body class="bg-gray-50">
     <main>

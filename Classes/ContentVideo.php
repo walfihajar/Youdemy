@@ -73,7 +73,6 @@ class ContentVideo extends Content
 
     public function add(): bool
     {
-        // Insérer le cours dans la table `course`
         $sqlCourse = "INSERT INTO course (title, description, picture, id_category, id_user, created_at, price, status, archive, content_type) 
                       VALUES (:title, :description, :picture, :id_category, :id_user, :created_at, :price, 'activated', '0', :content_type)";
         $stmtCourse = $this->db->prepare($sqlCourse);
@@ -87,16 +86,16 @@ class ContentVideo extends Content
         $stmtCourse->bindParam(':content_type', $this->type, PDO::PARAM_STR);
         $stmtCourse->execute();
 
-        // Récupérer l'ID du cours inséré
         $this->id_course = $this->db->lastInsertId();
 
-        // Insérer le contenu vidéo dans la table `content`
         $sqlContent = "INSERT INTO content (id_course, type, url_video) VALUES (:id_course, :type, :url_video)";
         $stmtContent = $this->db->prepare($sqlContent);
         $stmtContent->bindParam(':id_course', $this->id_course, PDO::PARAM_INT);
         $stmtContent->bindParam(':type', $this->type, PDO::PARAM_STR);
         $stmtContent->bindParam(':url_video', $this->url, PDO::PARAM_STR);
         return $stmtContent->execute();
+
+        
     }
 
     public function update(): bool
@@ -110,7 +109,7 @@ class ContentVideo extends Content
 
     public function display(): string
     {
-        $videoHtml = '<iframe height="400" width="560" src="' . htmlspecialchars($this->url) . '"></iframe>';
+        $videoHtml = '<iframe width="560" height="315" src="' . htmlspecialchars($this->url) . '" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
         return '<div class="course-video w-full">
                     <div class="video-container mb-4">
                         <div class="container flex justify-center">
